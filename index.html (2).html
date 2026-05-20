@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderBus | Premium Bus Booking</title>
+    <style>
+        /* --- Premium UI Variables --- */
+        :root {
+            --primary: #FF3366; /* Bright Pink/Red */
+            --secondary: #00C9FF; /* Bright Cyan */
+            --dark: #222222;
+            --light: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-card: rgba(255, 255, 255, 0.65);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* Background Image with 50% Transparency Effect */
+        body {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: var(--dark);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links li a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links li a:hover {
+            color: var(--primary);
+        }
+
+        /* Section Container */
+        .section {
+            min-height: 100vh;
+            padding: 100px 5% 50px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .active-section {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glassmorphism Cards */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--dark);
+        }
+
+        h2 span {
+            color: var(--primary);
+        }
+
+        /* Home / Search Forms */
+        .search-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: var(--glass-card);
+            padding: 2rem;
+            border-radius: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .input-group input, .input-group select {
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            outline: none;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--light);
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 1.5rem;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(255, 51, 102, 0.3);
+        }
+
+        /* Explore Destinations */
+        .destinations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .dest-card {
+            background: var(--glass-card);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .dest-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .dest-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .dest-info {
+            padding: 1.5rem;
+        }
+
+        .dest-info h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        /* Booking / Available Buses */
+        .bus-card {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--secondary);
+        }
+        
+        /* Contact Form */
+        .contact-flex {
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+        .contact-info, .contact-form {
+            flex: 1;
+            min-width: 300px;
+        }
+        .contact-form input, .contact-form textarea {
+            width: 100%;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">WanderBus.</div>
+        <ul class="nav-links">
+            <li><a onclick="showSection('home')">Home</a></li>
+            <li><a onclick="showSection('booking')">Booking</a></li>
+            <li><a onclick="showSection('explore')">Explore</a></li>
+            <li><a onclick="showSection('checkout')">Checkout</a></li>
+            <li><a onclick="showSection('contact')">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- HOME SECTION -->
+    <section id="home" class="section active-section">
+        <div class="glass-panel" style="text-align: center; margin-top: 5vh;">
+            <h1 style="font-size: 4rem; margin-bottom: 1rem;">Let's <span>Travel</span> Together</h1>
+            <p style="font-size: 1.2rem; color: #555; margin-bottom: 3rem;">Premium bus rides with ultimate comfort and safety.</p>
+            
+            <div class="search-box">
+                <div class="input-group">
+                    <label>Leaving From</label>
+                    <input type="text" placeholder="City or Stop">
+                </div>
+                <div class="input-group">
+                    <label>Going To</label>
+                    <input type="text" placeholder="Destination City">
+                </div>
+                <div class="input-group">
+                    <label>Date of Journey</label>
+                    <input type="date">
+                </div>
+                <button class="btn" onclick="showSection('booking')">Search Buses</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- BOOKING SECTION -->
+    <section id="booking" class="section">
+        <div class="glass-panel">
+            <h2>Available <span>Buses</span></h2>
+            
+            <div class="bus-card">
+                <div>
+                    <h3>Wander Premium Volvo</h3>
+                    <p>New York → Washington DC | Departure: 10:00 AM</p>
+                </div>
+                <div style="text-align: right;">
+                    <h3 style="color: var(--primary);">$45.00</h3>
+                    <button class="btn" style="padding: 0.5rem 1.5rem; margin-top: 0.5rem;" onclick="showSection('checkout')">Book Seat</button>
+                </div>
+            </div>
+
+            <div class="bus-card">
+                <div>
+                    <h3>Express Sleeper</h3>
+                    <p>New York → Boston | Departure: 02:30 PM</p>
+                </div>
+                <div style="text-align: right;">
+                    <h3 style="color: var(--primary);">$30.00</h3>
+                    <button class="btn" style="padding: 0.5rem 1.5rem; margin-top: 0.5rem;" onclick="showSection('checkout')">Book Seat</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXPLORE DESTINATION SECTION -->
+    <section id="explore" class="section">
+        <div class="glass-panel">
+            <h2>Explore <span>Destinations</span></h2>
+            <div class="destinations-grid">
+                <div class="dest-card">
+                    <img src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="New York">
+                    <div class="dest-info">
+                        <h3>New York</h3>
+                        <p>Experience the city that never sleeps.</p>
+                    </div>
+                </div>
+                <div class="dest-card">
+                    <img src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="San Francisco">
+                    <div class="dest-info">
+                        <h3>San Francisco</h3>
+                        <p>Golden Gate and vibrant city life.</p>
+                    </div>
+                </div>
+                <div class="dest-card">
+                    <img src="https://images.unsplash.com/photo-1517058810013-4318c4e5185d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Chicago">
+                    <div class="dest-info">
+                        <h3>Chicago</h3>
+                        <p>Stunning architecture and deep-dish pizza.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHECKOUT SECTION -->
+    <section id="checkout" class="section">
+        <div class="glass-panel">
+            <h2>Secure <span>Checkout</span></h2>
+            <div class="contact-flex">
+                <div class="contact-form">
+                    <h3>Passenger Details</h3>
+                    <input type="text" placeholder="Full Name" required>
+                    <input type="email" placeholder="Email Address" required>
+                    <input type="tel" placeholder="Phone Number" required>
+                </div>
+                <div class="contact-form">
+                    <h3>Payment Information</h3>
+                    <input type="text" placeholder="Card Number" required>
+                    <div style="display: flex; gap: 1rem;">
+                        <input type="text" placeholder="MM/YY" required>
+                        <input type="text" placeholder="CVV" required>
+                    </div>
+                    <button class="btn" style="width: 100%;" onclick="alert('Ticket Confirmed! Have a safe journey.')">Pay & Confirm</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="section">
+        <div class="glass-panel">
+            <h2>Get in <span>Touch</span></h2>
+            <div class="contact-flex">
+                <div class="contact-info">
+                    <h3>Website Contact Info</h3>
+                    <p><strong>Address:</strong> 123 Travel Avenue, Transit City, NY 10001</p>
+                    <p><strong>Phone:</strong> +1 (800) 555-0199</p>
+                    <p><strong>Email:</strong> support@wanderbus.com</p>
+                    <p><strong>Working Hours:</strong> 24/7 Support</p>
+                </div>
+                <div class="contact-form">
+                    <input type="text" placeholder="Your Name">
+                    <input type="email" placeholder="Your Email">
+                    <textarea rows="4" placeholder="Your Message"></textarea>
+                    <button class="btn">Send Message</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('active-section');
+            });
+            // Show target section
+            document.getElementById(sectionId).classList.add('active-section');
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
