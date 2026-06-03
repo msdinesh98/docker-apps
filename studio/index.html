@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lumière Studio — Fine Art Photography</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --sand:     #c8a97e;
+      --sand-lt:  #f5efe6;
+      --sand-mid: #e8d9c4;
+      --ocean:    #3a7ca5;
+      --ocean-dk: #1e4f6e;
+      --ocean-lt: #d6eaf5;
+      --white:    #fdfcfa;
+      --ink:      #1a1714;
+      --mid:      #5c5346;
+      --radius:   2px;
+    }
+
+    /* ── BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+    h1,h2,h3,h4,h5 { font-family: 'Cormorant Garamond', serif; }
+    .page { display: none; animation: fadein .5s ease; }
+    .page.active { display: block; }
+    @keyframes fadein { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── NAV ── */
+    .navbar-custom {
+      background: rgba(253,252,250,.97);
+      border-bottom: 1px solid var(--sand-mid);
+      backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 1000;
+      padding: 0 2rem;
+    }
+    .brand-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 300;
+      letter-spacing: .15em;
+      color: var(--ink) !important;
+      text-decoration: none;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .brand-logo span { color: var(--ocean); }
+    .nav-link-custom {
+      font-family: 'Jost', sans-serif;
+      font-size: .75rem;
+      font-weight: 400;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--mid) !important;
+      padding: 1.4rem 1rem !important;
+      border-bottom: 2px solid transparent;
+      transition: color .25s, border-color .25s;
+      cursor: pointer;
+      background: none; border-top: none; border-left: none; border-right: none;
+    }
+    .nav-link-custom:hover, .nav-link-custom.active {
+      color: var(--ocean) !important;
+      border-bottom-color: var(--ocean);
+    }
+
+    /* ── HERO CAROUSEL ── */
+    .hero-carousel { position: relative; height: 92vh; overflow: hidden; }
+    .hero-slide {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: 0; transition: opacity 1.2s ease;
+    }
+    .hero-slide.active { opacity: 1; }
+    .hero-slide::after {
+      content:'';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(26,23,20,.15) 0%, rgba(26,23,20,.55) 100%);
+    }
+
+    /* Landscape SVG placeholders */
+    .slide-1 { background: linear-gradient(135deg,#b8cdd9 0%,#8fafc2 30%,#c8a97e 60%,#e8d9c4 100%); }
+    .slide-2 { background: linear-gradient(160deg,#1e4f6e 0%,#3a7ca5 40%,#7bafc8 70%,#c8dde8 100%); }
+    .slide-3 { background: linear-gradient(120deg,#e8d9c4 0%,#c8a97e 35%,#8a6a48 65%,#3d2d1e 100%); }
+    .slide-4 { background: linear-gradient(145deg,#2c3e28 0%,#4a6741 30%,#8aaa7a 55%,#c8d9b8 100%); }
+
+    /* Decorative nature elements inside each slide */
+    .slide-art {
+      position: absolute; inset: 0; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .slide-art svg { width: 100%; height: 100%; position: absolute; opacity: .55; }
+
+    .hero-caption {
+      position: absolute; bottom: 14%; left: 8%;
+      z-index: 10; color: #fff;
+    }
+    .hero-caption .eyebrow {
+      font-size: .7rem; letter-spacing: .3em; text-transform: uppercase;
+      color: var(--sand); margin-bottom: .6rem;
+    }
+    .hero-caption h1 {
+      font-size: clamp(2.4rem, 6vw, 5rem); font-weight: 300;
+      line-height: 1.1; text-shadow: 0 2px 30px rgba(0,0,0,.3);
+    }
+    .hero-caption p {
+      font-size: .9rem; font-weight: 200; letter-spacing: .08em;
+      margin-top: .8rem; opacity: .85;
+    }
+
+    .hero-controls {
+      position: absolute; bottom: 6%; right: 8%; z-index: 10;
+      display: flex; gap: 1rem;
+    }
+    .hero-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.5);
+      background: rgba(255,255,255,.12);
+      color: #fff; font-size: .9rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s;
+    }
+    .hero-btn:hover { background: rgba(255,255,255,.28); }
+
+    .hero-dots {
+      position: absolute; bottom: 7.2%; left: 8%; z-index: 10;
+      display: flex; gap: .6rem; align-items: center;
+    }
+    .hero-dot {
+      width: 28px; height: 2px; background: rgba(255,255,255,.4);
+      border-radius: 2px; cursor: pointer; transition: background .25s, width .25s;
+    }
+    .hero-dot.active { background: var(--sand); width: 48px; }
+
+    /* ── SECTION LABELS ── */
+    .section-label {
+      font-size: .65rem; letter-spacing: .35em; text-transform: uppercase;
+      color: var(--ocean); font-family: 'Jost', sans-serif; font-weight: 400;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 300; line-height: 1.15; color: var(--ink);
+    }
+    .section-line {
+      width: 48px; height: 1px;
+      background: linear-gradient(90deg, var(--sand), var(--ocean));
+      margin: 1.2rem 0;
+    }
+
+    /* ── BW PORTRAIT SECTION ── */
+    .bw-section {
+      background: var(--ink);
+      padding: 6rem 0;
+    }
+    .bw-section .section-label { color: var(--sand); }
+    .bw-section .section-title { color: var(--white); }
+    .bw-section .section-line { background: linear-gradient(90deg, var(--sand), #888); }
+    .bw-section p { color: rgba(253,252,250,.65); }
+
+    .portrait-card {
+      position: relative; overflow: hidden; border-radius: var(--radius);
+      cursor: pointer; group: true;
+    }
+    .portrait-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.75) 100%);
+      z-index: 2; opacity: 0; transition: opacity .4s;
+    }
+    .portrait-card:hover::before { opacity: 1; }
+    .portrait-card-inner {
+      width: 100%; aspect-ratio: 3/4;
+      filter: grayscale(1) contrast(1.1);
+      transition: transform .6s ease, filter .4s;
+    }
+    .portrait-card:hover .portrait-card-inner { transform: scale(1.04); filter: grayscale(.7) contrast(1.2); }
+    .portrait-card-label {
+      position: absolute; bottom: 1.2rem; left: 1.2rem; z-index: 3;
+      color: #fff; opacity: 0; transform: translateY(6px);
+      transition: opacity .35s, transform .35s;
+      font-size: .72rem; letter-spacing: .2em; text-transform: uppercase;
+    }
+    .portrait-card:hover .portrait-card-label { opacity: 1; transform: translateY(0); }
+
+    /* portrait colour fills (no external images needed) */
+    .port-1 { background: linear-gradient(160deg,#2a2a2a,#555,#888,#444); }
+    .port-2 { background: linear-gradient(140deg,#111,#3a3a3a,#666,#222); }
+    .port-3 { background: linear-gradient(170deg,#1c1c1c,#444,#777,#333); }
+    .port-4 { background: linear-gradient(150deg,#0f0f0f,#2c2c2c,#5a5a5a,#1a1a1a); }
+    .port-5 { background: linear-gradient(155deg,#222,#4a4a4a,#888,#333); }
+    .port-6 { background: linear-gradient(145deg,#181818,#3c3c3c,#6a6a6a,#282828); }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      background: var(--ocean-dk);
+      padding: 3rem 0;
+    }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem; font-weight: 300;
+      color: var(--sand); line-height: 1;
+    }
+    .stat-label {
+      font-size: .7rem; letter-spacing: .25em; text-transform: uppercase;
+      color: rgba(255,255,255,.55); margin-top: .4rem;
+    }
+
+    /* ── SERVICES SECTION ── */
+    .services-section { padding: 6rem 0; background: var(--sand-lt); }
+    .service-card {
+      background: var(--white);
+      border: 1px solid var(--sand-mid);
+      border-radius: var(--radius);
+      padding: 2.2rem 1.8rem;
+      transition: transform .3s, box-shadow .3s, border-color .3s;
+      cursor: pointer; height: 100%;
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(58,124,165,.12);
+      border-color: var(--ocean);
+    }
+    .service-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--ocean-lt);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: var(--ocean);
+      margin-bottom: 1.2rem;
+    }
+    .service-card h5 {
+      font-size: 1.2rem; font-weight: 400; margin-bottom: .6rem;
+    }
+    .service-card p { font-size: .83rem; color: var(--mid); line-height: 1.7; }
+
+    /* ── ALBUM PAGE ── */
+    .album-hero {
+      background: linear-gradient(135deg, var(--ocean-dk), var(--ocean));
+      padding: 5rem 0 3rem;
+      color: #fff;
+    }
+    .filter-tabs {
+      display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 2.5rem;
+    }
+    .filter-tab {
+      font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+      padding: .5rem 1.2rem; border-radius: 100px;
+      border: 1px solid var(--sand-mid);
+      background: transparent; color: var(--mid);
+      cursor: pointer; transition: all .25s;
+    }
+    .filter-tab:hover, .filter-tab.active {
+      background: var(--ocean); color: #fff; border-color: var(--ocean);
+    }
+
+    .masonry-grid {
+      columns: 3; column-gap: 1rem;
+    }
+    @media(max-width:768px) { .masonry-grid { columns: 2; } }
+    @media(max-width:480px) { .masonry-grid { columns: 1; } }
+    .masonry-item {
+      break-inside: avoid; margin-bottom: 1rem;
+      border-radius: var(--radius); overflow: hidden;
+      position: relative; cursor: pointer;
+    }
+    .masonry-img {
+      width: 100%; display: block;
+      transition: transform .5s, filter .4s;
+    }
+    .masonry-item:hover .masonry-img { transform: scale(1.04); filter: brightness(.85); }
+    .masonry-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(30,79,110,.7) 0%, transparent 50%);
+      opacity: 0; transition: opacity .35s;
+      display: flex; align-items: flex-end; padding: 1rem;
+    }
+    .masonry-item:hover .masonry-overlay { opacity: 1; }
+    .masonry-tag {
+      font-size: .66rem; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(255,255,255,.85);
+    }
+
+    /* album colour tiles */
+    .alb-h1  { height: 280px; background: linear-gradient(145deg,#8fafc2,#c8dde8,#3a7ca5); }
+    .alb-h2  { height: 200px; background: linear-gradient(160deg,#4a6741,#8aaa7a,#c8d9b8); }
+    .alb-h3  { height: 240px; background: linear-gradient(130deg,#8a6a48,#c8a97e,#f5efe6); }
+    .alb-h4  { height: 320px; background: linear-gradient(150deg,#1e4f6e,#3a7ca5,#7bafc8); }
+    .alb-h5  { height: 180px; background: linear-gradient(135deg,#c8a97e,#e8d9c4,#f5efe6); }
+    .alb-h6  { height: 260px; background: linear-gradient(155deg,#2c3e28,#4a6741,#8aaa7a); }
+    .alb-h7  { height: 210px; background: linear-gradient(140deg,#3d2d1e,#8a6a48,#c8a97e); }
+    .alb-h8  { height: 290px; background: linear-gradient(165deg,#b8cdd9,#8fafc2,#1e4f6e); }
+    .alb-h9  { height: 190px; background: linear-gradient(125deg,#e8d9c4,#c8a97e,#8a6a48); }
+
+    /* ── FAVOURITES PAGE ── */
+    .favs-section { padding: 5rem 0; background: var(--white); }
+    .fav-hero-banner {
+      background: linear-gradient(120deg, var(--sand) 0%, var(--sand-mid) 100%);
+      padding: 5rem 0 3rem;
+    }
+    .fav-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.5rem; }
+    @media(min-width:992px) { .fav-grid { grid-template-columns: repeat(3,1fr); } }
+    .fav-card {
+      position: relative; overflow: hidden; border-radius: var(--radius);
+      cursor: pointer; border: 2px solid transparent;
+      transition: border-color .3s;
+    }
+    .fav-card.liked { border-color: var(--ocean); }
+    .fav-img {
+      width: 100%; aspect-ratio: 1;
+      transition: transform .5s;
+      display: block;
+    }
+    .fav-card:hover .fav-img { transform: scale(1.06); }
+    .fav-overlay {
+      position: absolute; inset: 0;
+      background: rgba(30,79,110,.55);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .35s;
+      gap: .8rem;
+    }
+    .fav-card:hover .fav-overlay { opacity: 1; }
+    .fav-action-btn {
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,.8);
+      background: rgba(255,255,255,.15);
+      color: #fff; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s;
+    }
+    .fav-action-btn:hover { background: rgba(255,255,255,.35); }
+    .fav-action-btn.heart-btn.liked { background: rgba(200,60,60,.7); border-color: transparent; }
+
+    /* fav colour tiles */
+    .fv-1 { background: linear-gradient(145deg,#8fafc2,#c8dde8); }
+    .fv-2 { background: linear-gradient(150deg,#c8a97e,#f5efe6); }
+    .fv-3 { background: linear-gradient(140deg,#3a7ca5,#1e4f6e); }
+    .fv-4 { background: linear-gradient(160deg,#4a6741,#c8d9b8); }
+    .fv-5 { background: linear-gradient(130deg,#3d2d1e,#c8a97e); }
+    .fv-6 { background: linear-gradient(155deg,#b8cdd9,#3a7ca5); }
+    .fv-7 { background: linear-gradient(125deg,#e8d9c4,#8a6a48); }
+    .fv-8 { background: linear-gradient(165deg,#2c3e28,#8aaa7a); }
+    .fv-9 { background: linear-gradient(135deg,#1e4f6e,#7bafc8); }
+
+    /* ── CONTACT PAGE ── */
+    .contact-hero {
+      background: var(--ink);
+      padding: 6rem 0;
+      position: relative; overflow: hidden;
+    }
+    .contact-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(58,124,165,.25) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 50%, rgba(200,169,126,.15) 0%, transparent 55%);
+    }
+    .contact-form-wrap {
+      background: var(--white);
+      border-radius: 4px; padding: 3rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.12);
+    }
+    .form-control-custom {
+      border: none; border-bottom: 1px solid var(--sand-mid);
+      border-radius: 0; background: transparent;
+      padding: .9rem 0; font-family: 'Jost', sans-serif;
+      font-size: .85rem; color: var(--ink); font-weight: 300;
+      transition: border-color .25s;
+    }
+    .form-control-custom:focus {
+      outline: none; box-shadow: none;
+      border-bottom-color: var(--ocean); background: transparent;
+    }
+    .form-label-custom {
+      font-size: .65rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--mid); font-weight: 400; margin-bottom: .3rem;
+    }
+    .btn-primary-custom {
+      background: var(--ocean-dk); color: #fff;
+      border: none; border-radius: var(--radius);
+      padding: .9rem 2.8rem;
+      font-family: 'Jost', sans-serif;
+      font-size: .75rem; letter-spacing: .2em; text-transform: uppercase;
+      font-weight: 400; cursor: pointer;
+      transition: background .25s, transform .2s;
+    }
+    .btn-primary-custom:hover { background: var(--ocean); transform: translateY(-2px); }
+    .contact-info-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+      margin-bottom: 2rem;
+    }
+    .contact-icon {
+      width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%;
+      background: rgba(58,124,165,.15);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ocean); font-size: 1rem;
+    }
+    .contact-info-item h6 {
+      font-size: .65rem; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(253,252,250,.45); margin-bottom: .25rem;
+    }
+    .contact-info-item p { color: rgba(253,252,250,.85); font-size: .88rem; margin: 0; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding: 3rem 0 2rem;
+      color: rgba(253,252,250,.45);
+      font-size: .78rem;
+    }
+    footer .brand-logo { color: rgba(253,252,250,.9) !important; }
+    footer a { color: rgba(253,252,250,.45); text-decoration: none; transition: color .2s; }
+    footer a:hover { color: var(--sand); }
+    .social-link {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.18);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.5) !important;
+      font-size: .85rem;
+      transition: border-color .25s, color .25s;
+    }
+    .social-link:hover { border-color: var(--sand); color: var(--sand) !important; }
+
+    /* ── LIGHTBOX ── */
+    .lightbox-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(10,8,6,.93);
+      display: none; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .lightbox-overlay.open { display: flex; animation: fadein .3s ease; }
+    .lightbox-inner {
+      max-width: 680px; width: 90%;
+      background: var(--ink);
+      border-radius: 4px; overflow: hidden;
+      position: relative;
+    }
+    .lightbox-img {
+      width: 100%; aspect-ratio: 4/3;
+      display: block;
+    }
+    .lightbox-close {
+      position: absolute; top: .8rem; right: .8rem;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.12); border: none;
+      color: #fff; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,.25); }
+    .lightbox-caption {
+      padding: 1.2rem 1.5rem;
+      color: rgba(255,255,255,.7); font-size: .82rem; line-height: 1.6;
+    }
+    .lightbox-caption strong { color: #fff; display: block; margin-bottom: .25rem; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 400; }
+
+    /* ── TOAST ── */
+    .toast-custom {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 9998;
+      background: var(--ocean-dk); color: #fff;
+      padding: .85rem 1.5rem; border-radius: 4px;
+      font-size: .8rem; letter-spacing: .05em;
+      box-shadow: 0 4px 24px rgba(0,0,0,.3);
+      transform: translateY(20px); opacity: 0;
+      transition: opacity .3s, transform .3s;
+      pointer-events: none;
+    }
+    .toast-custom.show { opacity: 1; transform: translateY(0); }
+
+    /* ── QUOTE STRIP ── */
+    .quote-strip {
+      background: var(--sand-mid);
+      padding: 4rem 0; text-align: center;
+    }
+    .quote-strip blockquote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      font-weight: 300; font-style: italic;
+      color: var(--ink); max-width: 640px; margin: 0 auto;
+      line-height: 1.5;
+    }
+    .quote-strip cite {
+      display: block; margin-top: 1rem;
+      font-family: 'Jost', sans-serif; font-size: .7rem;
+      letter-spacing: .22em; text-transform: uppercase;
+      color: var(--mid); font-style: normal;
+    }
+
+    /* misc */
+    .btn-outline-ocean {
+      border: 1px solid var(--ocean); color: var(--ocean);
+      background: transparent; border-radius: var(--radius);
+      padding: .65rem 1.8rem;
+      font-family: 'Jost', sans-serif; font-size: .75rem;
+      letter-spacing: .18em; text-transform: uppercase; font-weight: 400;
+      cursor: pointer; transition: background .25s, color .25s;
+    }
+    .btn-outline-ocean:hover { background: var(--ocean); color: #fff; }
+
+    .section-pad { padding: 5rem 0; }
+    .pill {
+      display: inline-block; font-size: .65rem; letter-spacing: .15em;
+      text-transform: uppercase; padding: .3rem .9rem;
+      border-radius: 100px; border: 1px solid var(--sand-mid);
+      color: var(--mid); margin-bottom: 1.5rem;
+    }
+
+    .form-select-custom {
+      border: none; border-bottom: 1px solid var(--sand-mid);
+      border-radius: 0; background: transparent;
+      padding: .9rem 0; font-family: 'Jost', sans-serif;
+      font-size: .85rem; color: var(--ink); font-weight: 300;
+    }
+    .form-select-custom:focus { box-shadow: none; border-bottom-color: var(--ocean); background: transparent; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════ NAVBAR ══════════════════════════════ -->
+<nav class="navbar-custom d-flex align-items-center justify-content-between">
+  <a class="brand-logo" href="#" onclick="showPage('home')">
+    <i class="fa-regular fa-aperture" style="font-size:1.1rem;color:var(--ocean)"></i>
+    Lumière<span>.</span>
+  </a>
+  <div class="d-flex gap-0">
+    <button class="nav-link-custom active" id="nav-home"    onclick="showPage('home')">Home</button>
+    <button class="nav-link-custom"        id="nav-album"   onclick="showPage('album')">Album</button>
+    <button class="nav-link-custom"        id="nav-favs"    onclick="showPage('favs')">Favourites</button>
+    <button class="nav-link-custom"        id="nav-contact" onclick="showPage('contact')">Contact</button>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════ HOME PAGE ══════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- HERO CAROUSEL -->
+  <section class="hero-carousel" id="heroCarousel">
+    <div class="hero-slide slide-1 active">
+      <div class="slide-art">
+        <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <!-- Sky & mountains -->
+          <ellipse cx="720" cy="600" rx="800" ry="340" fill="rgba(255,255,255,.07)"/>
+          <path d="M0 700 Q200 400 400 500 Q600 600 800 350 Q1000 100 1200 420 Q1350 600 1440 500 L1440 900 L0 900 Z" fill="rgba(255,255,255,.1)"/>
+          <path d="M0 750 Q300 550 600 650 Q900 750 1200 560 Q1380 480 1440 600 L1440 900 L0 900Z" fill="rgba(255,255,255,.08)"/>
+          <circle cx="300" cy="200" r="120" fill="rgba(255,255,255,.12)"/><!-- sun -->
+        </svg>
+      </div>
+    </div>
+    <div class="hero-slide slide-2">
+      <div class="slide-art">
+        <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <!-- Ocean horizon -->
+          <rect x="0" y="480" width="1440" height="420" fill="rgba(255,255,255,.06)"/>
+          <ellipse cx="720" cy="480" rx="1000" ry="30" fill="rgba(255,255,255,.12)"/>
+          <path d="M0 480 Q180 460 360 480 Q540 500 720 475 Q900 450 1080 475 Q1260 500 1440 480 L1440 900 L0 900Z" fill="rgba(255,255,255,.07)"/>
+          <circle cx="1100" cy="180" r="80" fill="rgba(255,255,255,.15)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="hero-slide slide-3">
+      <div class="slide-art">
+        <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <!-- Desert dunes -->
+          <path d="M0 800 Q200 600 500 700 Q700 760 900 620 Q1100 480 1300 650 Q1400 720 1440 700 L1440 900 L0 900Z" fill="rgba(255,255,255,.1)"/>
+          <path d="M0 850 Q300 720 600 780 Q900 840 1200 730 Q1360 680 1440 750 L1440 900 L0 900Z" fill="rgba(255,255,255,.07)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="hero-slide slide-4">
+      <div class="slide-art">
+        <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <!-- Forest canopy -->
+          <ellipse cx="300" cy="500" rx="200" ry="500" fill="rgba(0,0,0,.15)"/>
+          <ellipse cx="700" cy="450" rx="180" ry="520" fill="rgba(0,0,0,.12)"/>
+          <ellipse cx="1100" cy="480" rx="210" ry="490" fill="rgba(0,0,0,.13)"/>
+          <path d="M0 900 L0 200 Q200 100 400 180 Q600 260 800 140 Q1000 20 1200 160 Q1380 280 1440 200 L1440 900Z" fill="rgba(255,255,255,.06)"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="hero-caption">
+      <p class="eyebrow" id="heroEyebrow">Landscape Series — 01</p>
+      <h1 id="heroTitle">Where Light<br>Meets Eternity</h1>
+      <p id="heroSub">Fine art landscape photography by Lumière Studio</p>
+    </div>
+
+    <div class="hero-dots">
+      <div class="hero-dot active" onclick="goToSlide(0)"></div>
+      <div class="hero-dot" onclick="goToSlide(1)"></div>
+      <div class="hero-dot" onclick="goToSlide(2)"></div>
+      <div class="hero-dot" onclick="goToSlide(3)"></div>
+    </div>
+
+    <div class="hero-controls">
+      <button class="hero-btn" onclick="prevSlide()"><i class="fas fa-arrow-left"></i></button>
+      <button class="hero-btn" onclick="nextSlide()"><i class="fas fa-arrow-right"></i></button>
+    </div>
+  </section>
+
+  <!-- INTRO STRIP -->
+  <section class="section-pad" style="background:var(--white)">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-5">
+          <span class="section-label">Our Philosophy</span>
+          <div class="section-line"></div>
+          <h2 class="section-title">Light is the<br><em>true medium</em></h2>
+        </div>
+        <div class="col-lg-7">
+          <p style="color:var(--mid);line-height:1.9;font-size:.92rem;">
+            At Lumière, we believe every photograph is a conversation between shadow and light. 
+            Our studio pursues the quiet drama of landscapes, the raw truth of portraits, 
+            and the fleeting magic of nature — each frame a meditation on the world as it truly is.
+          </p>
+          <div class="d-flex gap-3 mt-3 flex-wrap">
+            <button class="btn-outline-ocean" onclick="showPage('album')">View Albums</button>
+            <button class="btn-outline-ocean" onclick="openModal('about')">About the Studio</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BW PORTRAIT SECTION -->
+  <section class="bw-section">
+    <div class="container">
+      <div class="row mb-5">
+        <div class="col-lg-6">
+          <span class="section-label">Portrait Series</span>
+          <div class="section-line"></div>
+          <h2 class="section-title" style="color:var(--white)">Faces in<br><em>Monochrome</em></h2>
+        </div>
+        <div class="col-lg-6 d-flex align-items-end">
+          <p style="color:rgba(253,252,250,.55);font-size:.85rem;line-height:1.8;">
+            Black and white portraiture strips away distraction, leaving only form, 
+            emotion, and the infinite depth of the human gaze.
+          </p>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="portrait-card" onclick="openLightbox('Contemplation','A study of stillness — the subject gazes inward, light raking across bone structure.')">
+            <div class="portrait-card-inner port-1"></div>
+            <div class="portrait-card-label">Contemplation</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="portrait-card" onclick="openLightbox('Solitude','Bare shoulders against a seamless grey — tension held in the jawline.')">
+            <div class="portrait-card-inner port-2"></div>
+            <div class="portrait-card-label">Solitude</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="portrait-card" onclick="openLightbox('Resilience','The lines of age become a map — every shadow a story earned.')">
+            <div class="portrait-card-inner port-3"></div>
+            <div class="portrait-card-label">Resilience</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="portrait-card" onclick="openLightbox('Grace','Draped linen catches the last of afternoon light in this editorial study.')">
+            <div class="portrait-card-inner port-4"></div>
+            <div class="portrait-card-label">Grace</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="portrait-card" onclick="openLightbox('Contrast','Split-light portraiture — one half in radiant highlight, the other in absolute shadow.')">
+            <div class="portrait-card-inner port-5"></div>
+            <div class="portrait-card-label">Contrast</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="portrait-card" onclick="openLightbox('Depth','Low-key chiaroscuro — the face emerges from darkness like a Rembrandt come to life.')">
+            <div class="portrait-card-inner port-6"></div>
+            <div class="portrait-card-label">Depth</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-5">
+        <button class="btn-outline-ocean" style="border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.7);" onclick="showPage('album')">
+          Explore Full Collection
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS STRIP -->
+  <section class="stats-strip">
+    <div class="container">
+      <div class="row text-center g-4">
+        <div class="col-6 col-md-3">
+          <div class="stat-num">12+</div>
+          <div class="stat-label">Years of Practice</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-num">3.4K</div>
+          <div class="stat-label">Sessions Completed</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-num">47</div>
+          <div class="stat-label">Exhibitions Worldwide</div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-num">18</div>
+          <div class="stat-label">Awards Received</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services-section">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="section-label">What We Offer</span>
+        <div class="section-line mx-auto"></div>
+        <h2 class="section-title">Studio Services</h2>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="service-card" onclick="openModal('portrait-svc')">
+            <div class="service-icon"><i class="fas fa-user-circle"></i></div>
+            <h5>Portrait Sessions</h5>
+            <p>Bespoke one-on-one sessions — editorial, lifestyle, or fine-art — in studio or on location.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="service-card" onclick="openModal('landscape-svc')">
+            <div class="service-icon"><i class="fas fa-mountain"></i></div>
+            <h5>Landscape Expeditions</h5>
+            <p>Multi-day golden-hour expeditions to the world's most photogenic natural environments.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="service-card" onclick="openModal('print-svc')">
+            <div class="service-icon"><i class="fas fa-print"></i></div>
+            <h5>Fine Art Prints</h5>
+            <p>Museum-grade archival giclée prints on cotton rag paper — signed, limited editions.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="service-card" onclick="openModal('workshop-svc')">
+            <div class="service-icon"><i class="fas fa-camera"></i></div>
+            <h5>Workshops</h5>
+            <p>Intimate masterclasses on light theory, composition, and dark-room techniques.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE STRIP -->
+  <section class="quote-strip">
+    <div class="container">
+      <blockquote>
+        "The camera is an instrument that teaches people how to see without a camera."
+        <cite>— Dorothea Lange</cite>
+      </blockquote>
+    </div>
+  </section>
+
+</div><!-- /home -->
+
+
+<!-- ══════════════════════════════ ALBUM PAGE ══════════════════════════════ -->
+<div id="page-album" class="page">
+
+  <div class="album-hero">
+    <div class="container position-relative">
+      <span class="section-label" style="color:rgba(255,255,255,.55)">The Collection</span>
+      <h2 class="section-title mt-2" style="color:#fff">Albums &amp; Series</h2>
+      <p style="color:rgba(255,255,255,.6);font-size:.88rem;margin-top:.6rem;">
+        Browse by category or scroll through the entire collection.
+      </p>
+    </div>
+  </div>
+
+  <section class="section-pad">
+    <div class="container">
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterAlbum('all',this)">All</button>
+        <button class="filter-tab" onclick="filterAlbum('landscape',this)">Landscapes</button>
+        <button class="filter-tab" onclick="filterAlbum('nature',this)">Nature</button>
+        <button class="filter-tab" onclick="filterAlbum('urban',this)">Urban</button>
+        <button class="filter-tab" onclick="filterAlbum('seascape',this)">Seascapes</button>
+        <button class="filter-tab" onclick="filterAlbum('abstract',this)">Abstract</button>
+      </div>
+
+      <!-- Masonry grid -->
+      <div class="masonry-grid" id="albumGrid">
+        <div class="masonry-item" data-cat="landscape" onclick="openLightbox('Alpine Dawn','First light breaking over snow-dusted peaks; 30-second exposure at f/11.')">
+          <div class="masonry-img alb-h1"></div>
+          <div class="masonry-overlay"><span class="masonry-tag">Landscape · Alpine</span></div>
+        </div>
+        <div class="masonry-item" data-cat="nature" onclick="openLightbox('Forest Breath','Morning mist threading through old-growth pine — shot at ISO 400, 1/60.')">
+          <div class="masonry-img alb-h2"></div>
+          <div class="masonry-overlay"><span class="masonry-tag">Nature · Forest</span></div>
+        </div>
+        <div class="masonry-item" data-cat="urban" onclick="openLightbox('Rust &amp; Stone','Industrial decay framed in warm afternoon light — found beauty in forgotten places.')">
+          <div class="masonry-img alb-h3"></div>
+          <div class="masonry-overlay"><span class="masonry-tag">Urban · Decay</span></div>
+        </div>
+        <div class="masonry-item" data-cat="seascape" onclick="openLightbox('Tidal Hour','Long exposure at the waterline — the ocean becomes silk, the rocks stand eternal.')">
+          <div class="masonry-img alb-h4"></div>
+          <div class="masonry-overlay"><span class="masonry-tag">Seascape · Long Exposure</span></div>
+        </div>
+        <div class="masonry-item" data-cat="abstract" onclick="openLightbox('Sand Script','Wind-formed ripple patterns on a Saharan dune — abstract geometry in nature.')">
+          <div class="masonry-img alb-h5"></div>
+          <div class="masonry-overlay"><span class="masonry-tag">Abstract · Sand</span></div>
+        </div>
+        <div class="masonry-item" data-cat="nature" onclick="openLightbox('Canopy Light','Filtered rays through a dense broadleaf canopy — colour temperature 4800K.')">
+          <div class="masonry-img alb-h6"></div>
+          <div class="masonry-overlay"><span class="masonry-tag">Nature · Canopy</span></div>
+        </div>
+        <div class="masonry-item" data-cat="landscape" onclick="openLightbox('Mesa Dusk','The last sliver of sun paints a desert mesa in impossible orange and violet.')">
+          <div class="masonry-img alb-h7"></div>
+          <div class="masonry-overlay"><span class="masonry-tag">Landscape · Desert</span></div>
+        </div>
+        <div class="masonry-item" data-cat="seascape" onclick="openLightbox('Fjord Mirror','Perfectly still water doubles the fjord — impossible to tell sky from reflection.')">
+          <div class="masonry-img alb-h8"></div>
+          <div class="masonry-overlay"><span class="masonry-tag">Seascape · Fjord</span></div>
+        </div>
+        <div class="masonry-item" data-cat="abstract" onclick="openLightbox('Dune Lines','Shadow lines at golden hour render dunes as a graphic study in light and dark.')">
+          <div class="masonry-img alb-h9"></div>
+          <div class="masonry-overlay"><span class="masonry-tag">Abstract · Dunes</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="quote-strip">
+    <div class="container">
+      <blockquote>
+        "To me, photography is an art of observation. It's about finding something interesting in an ordinary place."
+        <cite>— Elliott Erwitt</cite>
+      </blockquote>
+    </div>
+  </section>
+
+</div><!-- /album -->
+
+
+<!-- ══════════════════════════════ FAVOURITES PAGE ══════════════════════════════ -->
+<div id="page-favs" class="page">
+
+  <div class="fav-hero-banner">
+    <div class="container">
+      <span class="section-label">Curated Selection</span>
+      <div class="section-line"></div>
+      <h2 class="section-title">Favourites</h2>
+      <p style="color:var(--mid);font-size:.88rem;margin-top:.5rem;">
+        Our most-loved frames — tap the heart to save your own picks.
+      </p>
+    </div>
+  </div>
+
+  <section class="favs-section">
+    <div class="container">
+
+      <!-- FEATURED large card -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="position-relative overflow-hidden" style="border-radius:2px;cursor:pointer;height:320px;" onclick="openLightbox('The Wandering Light','The signature piece of our 2024 Wilderness exhibition — winner of the International Landscape Photography Award.')">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#1e4f6e,#3a7ca5,#c8a97e,#f5efe6);"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(30,79,110,.7) 0%,transparent 60%);display:flex;align-items:center;padding:3rem;">
+              <div>
+                <span class="pill" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2);">Featured Work</span>
+                <h3 style="font-size:2.4rem;color:#fff;font-weight:300;line-height:1.1;">The Wandering Light</h3>
+                <p style="color:rgba(255,255,255,.7);font-size:.85rem;margin-top:.5rem;">Award-winning — 2024 International Landscape Photography</p>
+                <button class="btn-primary-custom mt-3" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);" onclick="event.stopPropagation();openLightbox('The Wandering Light','The signature piece of our 2024 Wilderness exhibition.')">View Full Size</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div class="fav-grid" id="favGrid">
+        <div class="fav-card" id="fav-0">
+          <div class="fav-img fv-1" style="aspect-ratio:1;"></div>
+          <div class="fav-overlay">
+            <button class="fav-action-btn heart-btn" onclick="toggleLike(event,0)"><i class="fas fa-heart"></i></button>
+            <button class="fav-action-btn" onclick="openLightbox('Cerulean Study','A meditative sweep of coastal blues — shot from a clifftop at sunrise.')"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <div class="fav-card" id="fav-1">
+          <div class="fav-img fv-2" style="aspect-ratio:1;"></div>
+          <div class="fav-overlay">
+            <button class="fav-action-btn heart-btn" onclick="toggleLike(event,1)"><i class="fas fa-heart"></i></button>
+            <button class="fav-action-btn" onclick="openLightbox('Warm Desert','Sand and stone in late afternoon warmth — the palette of ancient lands.')"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <div class="fav-card" id="fav-2">
+          <div class="fav-img fv-3" style="aspect-ratio:1;"></div>
+          <div class="fav-overlay">
+            <button class="fav-action-btn heart-btn" onclick="toggleLike(event,2)"><i class="fas fa-heart"></i></button>
+            <button class="fav-action-btn" onclick="openLightbox('Deep Ocean','An ode to depth and pressure — blues at the edge of the knowable.')"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <div class="fav-card" id="fav-3">
+          <div class="fav-img fv-4" style="aspect-ratio:1;"></div>
+          <div class="fav-overlay">
+            <button class="fav-action-btn heart-btn" onclick="toggleLike(event,3)"><i class="fas fa-heart"></i></button>
+            <button class="fav-action-btn" onclick="openLightbox('Emerald Hollow','A forest glade where the light arrives in shafts, painting moss a luminous green.')"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <div class="fav-card" id="fav-4">
+          <div class="fav-img fv-5" style="aspect-ratio:1;"></div>
+          <div class="fav-overlay">
+            <button class="fav-action-btn heart-btn" onclick="toggleLike(event,4)"><i class="fas fa-heart"></i></button>
+            <button class="fav-action-btn" onclick="openLightbox('Earth Tones','Layers of sediment read like a geological diary — a study in striated warmth.')"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <div class="fav-card" id="fav-5">
+          <div class="fav-img fv-6" style="aspect-ratio:1;"></div>
+          <div class="fav-overlay">
+            <button class="fav-action-btn heart-btn" onclick="toggleLike(event,5)"><i class="fas fa-heart"></i></button>
+            <button class="fav-action-btn" onclick="openLightbox('Horizon Blue','Where sea meets sky and neither quite wins — indigo meeting silver at the edge of the world.')"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <div class="fav-card" id="fav-6">
+          <div class="fav-img fv-7" style="aspect-ratio:1;"></div>
+          <div class="fav-overlay">
+            <button class="fav-action-btn heart-btn" onclick="toggleLike(event,6)"><i class="fas fa-heart"></i></button>
+            <button class="fav-action-btn" onclick="openLightbox('Sand & Ivory','The quiet palette of windswept dunes just before the colour drains from the sky.')"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <div class="fav-card" id="fav-7">
+          <div class="fav-img fv-8" style="aspect-ratio:1;"></div>
+          <div class="fav-overlay">
+            <button class="fav-action-btn heart-btn" onclick="toggleLike(event,7)"><i class="fas fa-heart"></i></button>
+            <button class="fav-action-btn" onclick="openLightbox('Grove at Dusk','The last light retreating through a grove of birch — an elegy in green and gold.')"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <div class="fav-card" id="fav-8">
+          <div class="fav-img fv-9" style="aspect-ratio:1;"></div>
+          <div class="fav-overlay">
+            <button class="fav-action-btn heart-btn" onclick="toggleLike(event,8)"><i class="fas fa-heart"></i></button>
+            <button class="fav-action-btn" onclick="openLightbox('Glacial Pool','Meltwater pooled in a bowl of ancient ice — clarity so complete it becomes abstract.')"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /favs -->
+
+
+<!-- ══════════════════════════════ CONTACT PAGE ══════════════════════════════ -->
+<div id="page-contact" class="page">
+
+  <div class="contact-hero">
+    <div class="container position-relative" style="z-index:1;">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-5">
+          <span class="section-label" style="color:var(--sand)">Get In Touch</span>
+          <h2 class="section-title mt-2" style="color:#fff;font-size:clamp(2rem,4vw,3.5rem);">Let's create<br><em>something timeless</em></h2>
+          <p style="color:rgba(255,255,255,.5);font-size:.88rem;line-height:1.9;margin-top:1rem;">
+            Whether you're looking to book a session, commission a print, 
+            or enquire about workshops — we'd love to hear from you.
+          </p>
+
+          <div class="mt-4">
+            <div class="contact-info-item">
+              <div class="contact-icon"><i class="fas fa-map-pin"></i></div>
+              <div>
+                <h6>Studio Address</h6>
+                <p>14 Lighthouse Lane, Coastal Quarter<br>Melbourne, VIC 3000</p>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-icon"><i class="fas fa-phone"></i></div>
+              <div>
+                <h6>Phone</h6>
+                <p>+61 3 9000 1234</p>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+              <div>
+                <h6>Email</h6>
+                <p>hello@lumierestudio.co</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-7">
+          <div class="contact-form-wrap">
+            <h4 style="font-size:1.6rem;font-weight:300;margin-bottom:2rem;">Book a Session</h4>
+            <div class="row g-4">
+              <div class="col-md-6">
+                <label class="form-label-custom">First Name</label>
+                <input class="form-control form-control-custom w-100" placeholder="Amara" id="fname"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">Last Name</label>
+                <input class="form-control form-control-custom w-100" placeholder="Osei" id="lname"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">Email</label>
+                <input class="form-control form-control-custom w-100" type="email" placeholder="you@email.com" id="cemail"/>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">Phone</label>
+                <input class="form-control form-control-custom w-100" placeholder="+61 4xx xxx xxx" id="cphone"/>
+              </div>
+              <div class="col-12">
+                <label class="form-label-custom">Session Type</label>
+                <select class="form-control form-control-custom form-select-custom w-100" id="csession">
+                  <option value="">Choose a service…</option>
+                  <option>Portrait Session</option>
+                  <option>Landscape Expedition</option>
+                  <option>Fine Art Print Commission</option>
+                  <option>Workshop Enrolment</option>
+                  <option>General Enquiry</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label-custom">Message</label>
+                <textarea class="form-control form-control-custom w-100" rows="4" placeholder="Tell us about your vision…" id="cmsg" style="resize:none;"></textarea>
+              </div>
+              <div class="col-12">
+                <button class="btn-primary-custom" onclick="submitContact()">
+                  Send Message <i class="fas fa-arrow-right ms-2" style="font-size:.7rem;"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /contact -->
+
+
+<!-- ══════════════════════════════ FOOTER ══════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <a class="brand-logo" href="#" onclick="showPage('home')" style="font-size:1.3rem;">
+          Lumière<span style="color:var(--sand)">.</span>
+        </a>
+        <p class="mt-2" style="font-size:.8rem;line-height:1.8;">
+          Fine art photography studio — light, shadow, and everything in between.
+        </p>
+        <div class="d-flex gap-2 mt-3">
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-pinterest"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-behance"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-vimeo-v"></i></a>
+        </div>
+      </div>
+      <div class="col-md-4 col-6">
+        <div style="font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.8rem;">Navigation</div>
+        <div class="d-flex flex-column gap-2">
+          <a href="#" onclick="showPage('home')">Home</a>
+          <a href="#" onclick="showPage('album')">Albums</a>
+          <a href="#" onclick="showPage('favs')">Favourites</a>
+          <a href="#" onclick="showPage('contact')">Contact</a>
+        </div>
+      </div>
+      <div class="col-md-4 col-6">
+        <div style="font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.8rem;">Services</div>
+        <div class="d-flex flex-column gap-2">
+          <a href="#">Portrait Sessions</a>
+          <a href="#">Landscape Expeditions</a>
+          <a href="#">Fine Art Prints</a>
+          <a href="#">Photography Workshops</a>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,.07);padding-top:1.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+      <span>© 2024 Lumière Studio. All rights reserved.</span>
+      <span>Crafted with light &amp; intention.</span>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ══════════════════════════════ LIGHTBOX ══════════════════════════════ -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightboxOnBg(event)">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+    <div class="lightbox-img" id="lightboxImg" style="background:linear-gradient(135deg,#1e4f6e,#3a7ca5,#c8a97e);"></div>
+    <div class="lightbox-caption">
+      <strong id="lightboxTitle">Title</strong>
+      <span id="lightboxDesc"></span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════ SERVICE MODAL ══════════════════════════════ -->
+<div class="modal fade" id="serviceModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border:none;border-radius:2px;overflow:hidden;">
+      <div class="modal-body p-0">
+        <div id="modalBanner" style="height:160px;background:linear-gradient(135deg,var(--ocean-dk),var(--ocean));"></div>
+        <div style="padding:2rem;">
+          <h4 id="modalTitle" style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;"></h4>
+          <p id="modalBody" style="color:var(--mid);font-size:.85rem;line-height:1.8;margin-top:.8rem;"></p>
+          <div class="d-flex gap-3 mt-3">
+            <button class="btn-primary-custom" onclick="closeModal();showPage('contact')">Book Now</button>
+            <button style="background:none;border:none;color:var(--mid);font-size:.75rem;letter-spacing:.1em;cursor:pointer;" onclick="closeModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TOAST -->
+<div class="toast-custom" id="toastEl"></div>
+
+
+<!-- ══════════════════════════════ JS ══════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ── PAGE NAVIGATION ──
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-link-custom').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.getElementById('nav-' + id).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ── HERO CAROUSEL ──
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots   = document.querySelectorAll('.hero-dot');
+  const captions = [
+    { eyebrow:'Landscape Series — 01', title:'Where Light<br>Meets Eternity',    sub:'Fine art landscape photography' },
+    { eyebrow:'Seascape Series — 02',  title:'The Ocean Holds<br>No Secrets',     sub:'Long-exposure coastal photography' },
+    { eyebrow:'Desert Series — 03',    title:'Heat, Sand<br>and Silence',         sub:'Arid landscape expeditions' },
+    { eyebrow:'Forest Series — 04',    title:'Beneath the<br>Canopy',             sub:'Old-growth nature photography' },
+  ];
+  let current = 0, timer;
+
+  function goToSlide(n) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    const c = captions[current];
+    document.getElementById('heroEyebrow').textContent = c.eyebrow;
+    document.getElementById('heroTitle').innerHTML     = c.title;
+    document.getElementById('heroSub').textContent     = c.sub;
+    resetTimer();
+  }
+  function nextSlide() { goToSlide(current + 1); }
+  function prevSlide() { goToSlide(current - 1); }
+  function resetTimer() { clearInterval(timer); timer = setInterval(nextSlide, 5000); }
+  resetTimer();
+
+  // ── ALBUM FILTER ──
+  function filterAlbum(cat, btn) {
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.masonry-item').forEach(item => {
+      item.style.display = (cat === 'all' || item.dataset.cat === cat) ? 'block' : 'none';
+    });
+  }
+
+  // ── LIGHTBOX ──
+  function openLightbox(title, desc) {
+    document.getElementById('lightboxTitle').textContent = title;
+    document.getElementById('lightboxDesc').textContent  = desc;
+    document.getElementById('lightboxOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightboxOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeLightboxOnBg(e) { if (e.target === e.currentTarget) closeLightbox(); }
+
+  // ── MODALS ──
+  const modalData = {
+    'about':         { title:'About Lumière Studio', body:'Founded in 2012, Lumière is a boutique fine-art photography studio based in Melbourne. Led by award-winning photographer Isabelle Renard, the studio specialises in landscape expeditions, portraiture, and limited-edition archival prints. Our work has been exhibited across 47 galleries worldwide.' },
+    'portrait-svc':  { title:'Portrait Sessions',    body:'Our portrait sessions are deeply personal, unhurried affairs. Whether editorial, lifestyle, or fine-art, each session is shaped around your story. We shoot in our purpose-built Melbourne studio or at a location of your choosing. Sessions run 2–3 hours; all images are hand-retouched.' },
+    'landscape-svc': { title:'Landscape Expeditions',body:'We offer guided 3–7 day photography expeditions to extraordinary natural environments — Patagonia, Iceland, the Australian Outback, and more. Maximum 8 participants per expedition ensures intimate, transformative experiences and unforgettable captures.' },
+    'print-svc':     { title:'Fine Art Prints',      body:'Every print is produced on 310gsm Hahnemühle Photo Rag cotton paper using 12-colour pigment inks. Editions are strictly limited to 25 copies per image, each hand-signed and accompanied by a certificate of authenticity. Sizes from A3 to 120×80cm.' },
+    'workshop-svc':  { title:'Photography Workshops',body:'Our intimate masterclasses cover light theory, composition, in-camera techniques, and analogue dark-room practices. Run across a single intensive day or a weekend retreat, with no more than 6 participants to ensure personalised guidance from Isabelle and the studio team.' },
+  };
+  let bsModal;
+  function openModal(key) {
+    const d = modalData[key]; if (!d) return;
+    document.getElementById('modalTitle').textContent = d.title;
+    document.getElementById('modalBody').textContent  = d.body;
+    if (!bsModal) bsModal = new bootstrap.Modal(document.getElementById('serviceModal'));
+    bsModal.show();
+  }
+  function closeModal() { if (bsModal) bsModal.hide(); }
+
+  // ── FAVOURITES LIKE ──
+  const liked = new Set();
+  function toggleLike(e, idx) {
+    e.stopPropagation();
+    const card = document.getElementById('fav-' + idx);
+    const btn  = card.querySelector('.heart-btn');
+    if (liked.has(idx)) {
+      liked.delete(idx);
+      btn.classList.remove('liked');
+      card.classList.remove('liked');
+      showToast('Removed from favourites');
+    } else {
+      liked.add(idx);
+      btn.classList.add('liked');
+      card.classList.add('liked');
+      showToast('Added to your favourites ♥');
+    }
+  }
+
+  // ── TOAST ──
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toastEl');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // ── CONTACT ──
+  function submitContact() {
+    const fname = document.getElementById('fname').value.trim();
+    const cemail = document.getElementById('cemail').value.trim();
+    if (!fname || !cemail) { showToast('Please fill in your name and email.'); return; }
+    showToast('Message sent! We'll be in touch soon.');
+    ['fname','lname','cemail','cphone','csession','cmsg'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  }
+</script>
+
+</body>
+</html>
